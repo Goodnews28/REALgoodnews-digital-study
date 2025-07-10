@@ -1,103 +1,112 @@
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+import Head from "next/head";
+import "./app/globals.css";
+
+const phrases = [
+  "where curiosity meets code",
+  "where stories unfold",
+  "where Goodnews prototypes alternate futures",
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [index, setIndex] = useState(0);
+  const [input, setInput] = useState("");
+  const [chaosMode, setChaosMode] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((i) => (i + 1) % phrases.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (input.trim().toLowerCase() === ":chaosmode") {
+      setChaosMode(true);
+      setTimeout(() => setChaosMode(false), 5000); // reset after 5s
+      setInput("");
+    }
+  }, [input]);
+
+  return (
+    <main
+      className={`relative flex flex-col items-center justify-center min-h-screen text-[#EDEDED] px-4 text-center space-y-6 transition-all duration-500 overflow-hidden ${
+        chaosMode ? "bg-pink-800 rotate-1" : "bg-[#121212]"
+      }`}
+    >
+      <Head>
+        <title>Goodnews Digital Study</title>
+      </Head>
+
+      {/* Background blobs */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-0 left-1/2 w-[60vw] h-[60vw] bg-pink-600 opacity-20 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+        <div className="absolute bottom-0 right-1/3 w-[40vw] h-[40vw] bg-purple-700 opacity-20 rounded-full blur-2xl transform translate-x-1/2 translate-y-1/2 animate-spin-slow" />
+        <div className="stars absolute inset-0 z-[-1]" />
+      </div>
+
+      <h1 className="text-5xl md:text-6xl font-serif">
+        welcome to goodnews' digital study
+      </h1>
+
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={index}
+          className="text-xl md:text-2xl font-sans"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.5 }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          {phrases[index]}
+        </motion.p>
+      </AnimatePresence>
+
+      <button
+        onClick={() => {
+          const explore = document.getElementById("explore");
+          if (explore) explore.scrollIntoView({ behavior: "smooth" });
+        }}
+        className="text-lg font-semibold border px-6 py-2 rounded-full hover:bg-white hover:text-black transition"
+      >
+        Start Exploring
+      </button>
+
+      <div id="explore" className="pt-40 text-sm text-gray-400">
+        The exploration begins here...
+      </div>
+
+      {/* Chat Assistant */}
+      <div className="fixed bottom-6 right-6 max-w-xs w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#1f1f1f] border border-white/20 rounded-xl px-4 py-3 shadow-lg"
         >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <p className="text-sm mb-1 text-gray-300">Ask the Study Assistant</p>
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="w-full bg-transparent border border-white/30 rounded px-3 py-1 text-sm text-white focus:outline-none"
+            placeholder="e.g. what's the vibe today?"
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        </motion.div>
+      </div>
+
+      {/* Optional: Glitch text if chaos mode is active */}
+      {chaosMode && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="absolute top-4 left-4 text-pink-300 text-2xl font-mono animate-pulse"
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          CHAOS MODE ACTIVE
+        </motion.div>
+      )}
+    </main>
   );
 }
