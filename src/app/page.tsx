@@ -1,114 +1,104 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import dynamic from "next/dynamic";
-import Head from "next/head";
-import "./app/globals.css";
+import { useState, useEffect, useRef } from 'react'
+import StarsCanvas from './components/StarsCanvas'
+import Nav from './components/Nav'
+import OrbAssistant from './components/OrbAssistant'
+import Footer from './components/Footer'
+import ChaosModeStyle from './components/ChaosMode'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const phrases = [
-  "where curiosity meets code",
-  "where stories unfold",
-  "where Goodnews prototypes alternate futures",
-];
+  'where curiosity meets code',
+  'where stories unfold',
+  'where imagination takes flight',
+  'where ideas become reality',
+  'where creativity knows no bounds',
+  'where Goodnews prototypes alternate futures'
+]
 
 export default function Home() {
-  const [index, setIndex] = useState(0);
-  const [input, setInput] = useState("");
-  const [chaosMode, setChaosMode] = useState(false);
+  const [index, setIndex] = useState(0)
+  const [chaos, setChaos] = useState(false)
+  const synthRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setIndex((i) => (i + 1) % phrases.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+      setIndex((prev) => (prev + 1) % phrases.length)
+    }, 2500)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
-    if (input.trim().toLowerCase() === ":chaosmode") {
-      setChaosMode(true);
-      setTimeout(() => setChaosMode(false), 5000); // reset after 5s
-      setInput("");
+    if (synthRef.current) {
+      synthRef.current.currentTime = 0
+      synthRef.current.play().catch(() => {})
     }
-  }, [input]);
+  }, [index])
 
   return (
     <main
-      className={`relative flex flex-col items-center justify-center min-h-screen text-[#EDEDED] px-4 text-center space-y-6 transition-all duration-500 overflow-hidden ${
-        chaosMode ? "bg-pink-800 rotate-1" : "bg-[#121212]"
+      className={`ml-20 md:ml-56 relative flex flex-col items-center justify-center min-h-screen px-6 md:px-12 text-center space-y-8 overflow-hidden transition-colors duration-500 ${
+        chaos
+          ? 'bg-black text-lime-300 font-crt glitch'
+          : 'bg-gradient-to-br from-[#0e0e0e] via-[#111] to-[#141414] text-white'
       }`}
     >
-      <Head>
-        <title>Goodnews Digital Study</title>
-      </Head>
+      <audio
+        ref={synthRef}
+        src="/synth-blip.wav"
+        preload="auto"
+        className="hidden"
+      />
 
-      {/* Background blobs */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-0 left-1/2 w-[60vw] h-[60vw] bg-pink-600 opacity-20 rounded-full blur-3xl transform -translate-x-1/2 -translate-y-1/2 animate-pulse" />
-        <div className="absolute bottom-0 right-1/3 w-[40vw] h-[40vw] bg-purple-700 opacity-20 rounded-full blur-2xl transform translate-x-1/2 translate-y-1/2 animate-spin-slow" />
-        <div className="stars absolute inset-0 z-[-1]" />
-      </div>
+      <StarsCanvas />
+      <Nav onChaosToggle={() => setChaos(!chaos)} />
 
-      <h1 className="text-5xl md:text-6xl font-serif">
-        welcome to goodnews' digital study
-      </h1>
+      {chaos && <ChaosModeStyle />}
+
+      <motion.h1
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1 }}
+        className="text-4xl md:text-6xl font-serif tracking-tight z-10 leading-tight max-w-3xl"
+      >
+        welcome to <span className="text-lime-300">goodnews’</span> digital study
+      </motion.h1>
 
       <AnimatePresence mode="wait">
         <motion.p
           key={index}
-          className="text-xl md:text-2xl font-sans"
+          className={`text-lg md:text-2xl z-10 font-mono ${
+            chaos ? 'glitch-text' : 'text-zinc-300'
+          }`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.5 }}
         >
           {phrases[index]}
+          <span className="animate-blink text-white ml-1">|</span>
         </motion.p>
       </AnimatePresence>
 
-      <button
-        onClick={() => {
-          const explore = document.getElementById("explore");
-          if (explore) explore.scrollIntoView({ behavior: "smooth" });
-        }}
-        className="text-lg font-semibold border px-6 py-2 rounded-full hover:bg-white hover:text-black transition"
+      <motion.button
+        whileHover={{ scale: 1.07, backgroundColor: '#a3e635', color: '#0f0f0f' }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() =>
+          document.getElementById('explore')?.scrollIntoView({ behavior: 'smooth' })
+        }
+        className="z-10 mt-4 text-sm md:text-base font-mono border border-lime-300 px-6 py-2 rounded-full hover:bg-lime-300 hover:text-black transition-colors duration-300 shadow-md"
       >
         Start Exploring
-      </button>
+      </motion.button>
 
-      <div id="explore" className="pt-40 text-sm text-gray-400">
+      <OrbAssistant onChaos={() => setChaos(!chaos)} />
+
+      <div id="explore" className="pt-40 text-sm text-zinc-400 z-10 font-mono">
         The exploration begins here...
       </div>
 
-      {/* Chat Assistant */}
-      <div className="fixed bottom-6 right-6 max-w-xs w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1f1f1f] border border-white/20 rounded-xl px-4 py-3 shadow-lg"
-        >
-          <p className="text-sm mb-1 text-gray-300">Ask the Study Assistant</p>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="w-full bg-transparent border border-white/30 rounded px-3 py-1 text-sm text-white focus:outline-none"
-            placeholder="e.g. what's the vibe today?"
-          />
-        </motion.div>
-      </div>
-
-      {/* Optional: Glitch text if chaos mode is active */}
-      {chaosMode && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute top-4 left-4 text-pink-300 text-2xl font-mono animate-pulse"
-        >
-          CHAOS MODE ACTIVE
-        </motion.div>
-      )}
+      <Footer />
     </main>
-  );
+  )
 }
